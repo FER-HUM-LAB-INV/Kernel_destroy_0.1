@@ -282,8 +282,6 @@ def static_loose():
     upd()
     screen.blit(static3, (0, 0))
     upd()
-    screen.blit(static4, (0, 0))
-    upd()
 
 
 lvl_1 = [
