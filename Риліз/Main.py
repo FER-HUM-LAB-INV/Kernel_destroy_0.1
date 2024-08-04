@@ -43,7 +43,7 @@ error4 = pygame.image.load("img/error4.png")
 error5 = pygame.image.load("img/error5.png")
 error6 = pygame.image.load("img/error6.png")
 error7 = pygame.image.load("img/error7.png")
-error8 = pygame.image.load("img/descarga.png")
+error8 = pygame.image.load("img/error8.png")
 
 BSERR = pygame.image.load("img/BSERR.png")
 BSASK = pygame.image.load("img/BSASK.png")
