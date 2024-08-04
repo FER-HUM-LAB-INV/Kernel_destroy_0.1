@@ -1,4 +1,7 @@
+import os
+
 import pygame
+from time import sleep
 
 pygame.init()
 
@@ -9,13 +12,19 @@ screen_width = 1000
 screen_height = 1000
 
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Code Corruption CC 0.1')
+pygame.display.set_caption("Kernel Corruption KC 0.1")
 
-tile_size = 25
+t = 0
+y = 0
+i = 0
+block_size = 25
 game_over = 0
 lvl_c = 1
 
-bg_img = pygame.image.load('img/Sky.jpg')
+black = pygame.image.load("img/black.png")
+dirt_img = pygame.image.load("img/dirt.png")
+grass_img = pygame.image.load("img/grass.png")
+bg_img = pygame.image.load("img/Sky.jpg")
 bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
 bg_null = pygame.image.load("img/ERROR_BG_NULL.png")
 restart_img = pygame.image.load('img/restart_btn.png')
@@ -55,7 +64,7 @@ error6 = pygame.transform.scale(error6, (screen_width, screen_height))
 error7 = pygame.transform.scale(error7, (screen_width, screen_height))
 error8 = pygame.transform.scale(error8, (screen_width, screen_height))
 
-krnl = pygame.transform.scale(krnl, (screen_width, screen_height))
+krnl = pygame.transform.scale(krnl, (screen_width + 300, screen_height))
 
 
 class Button:
@@ -98,7 +107,7 @@ class Player:
         if game_over == 0:
             key = pygame.key.get_pressed()
             if key[pygame.K_F4] and not self.jumped and not self.in_air:
-                self.vel_y = -100
+                self.vel_y = -50
             if key[pygame.K_UP] and not self.jumped and not self.in_air:
                 self.vel_y = -15
                 self.jumped = True
@@ -131,13 +140,13 @@ class Player:
                     self.image = self.images_left[self.index]
 
             self.vel_y += 0.75
-            if self.vel_y > 3.5:
-                self.vel_y = 3.5
+            if self.vel_y > 9:
+                self.vel_y = 9
             dy += self.vel_y
 
             self.in_air = True
 
-            for tile in world.tile_list:
+            for tile in world.block_list:
                 # check x
                 if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
                     dx = 0
@@ -184,7 +193,6 @@ class Player:
 
         screen.blit(self.image, self.rect)
         pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
-
         return game_over
 
     def reset(self, x, y):
@@ -193,12 +201,12 @@ class Player:
         self.index = 0
         self.counter = 0
         for num in range(1, 5):
-            img_right = pygame.image.load(f'img/guy{num}.png')
+            img_right = pygame.image.load(f"img/guy{num}.png")
             img_right = pygame.transform.scale(img_right, (20, 40))
             img_left = pygame.transform.flip(img_right, True, False)
             self.images_right.append(img_right)
             self.images_left.append(img_left)
-        self.dead_image = pygame.image.load('img/ghost.png')
+        self.dead_image = pygame.image.load("img/ghost.png")
         self.image = self.images_right[self.index]
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -213,57 +221,54 @@ class Player:
 
 class World:
     def __init__(self, data):
-        self.tile_list = []
+        self.block_list = []
         self.err_List = []
 
-        dirt_img = pygame.image.load('img/dirt.png')
-        grass_img = pygame.image.load('img/grass.png')
-
         row_count = 0
-        for row in data:
+        for line in data:
             col_count = 0
-            for tile in row:
-                if tile == 1:
-                    img = pygame.transform.scale(dirt_img, (tile_size, tile_size))
+            for block in line:
+                if block == 1:
+                    img = pygame.transform.scale(dirt_img, (block_size, block_size))
                     img_rect = img.get_rect()
-                    img_rect.x = col_count * tile_size
-                    img_rect.y = row_count * tile_size
-                    tile = (img, img_rect)
-                    self.tile_list.append(tile)
-                if tile == 2:
-                    img = pygame.transform.scale(grass_img, (tile_size, tile_size))
+                    img_rect.x = col_count * block_size
+                    img_rect.y = row_count * block_size
+                    block = (img, img_rect)
+                    self.block_list.append(block)
+                if block == 2:
+                    img = pygame.transform.scale(grass_img, (block_size, block_size))
                     img_rect = img.get_rect()
-                    img_rect.x = col_count * tile_size
-                    img_rect.y = row_count * tile_size
-                    tile = (img, img_rect)
-                    self.tile_list.append(tile)
-                if tile == 3:
-                    enm = Enemy(col_count * tile_size, row_count * tile_size + 15)
+                    img_rect.x = col_count * block_size
+                    img_rect.y = row_count * block_size
+                    block = (img, img_rect)
+                    self.block_list.append(block)
+                if block == 3:
+                    enm = Enemy(col_count * block_size, row_count * block_size + 15)
                     enm_G.add(enm)
-                if tile == 6:
-                    lava = Lava(col_count * tile_size, row_count * tile_size + (tile_size // 2))
+                if block == 6:
+                    lava = Lava(col_count * block_size, row_count * block_size + (block_size // 2))
                     lava_G.add(lava)
-                if tile == 7:
-                    img = pygame.transform.scale(error2, (tile_size, tile_size))
+                if block == 7:
+                    img = pygame.transform.scale(error2, (block_size, block_size))
                     img_rect = img.get_rect()
-                    img_rect.x = col_count * tile_size
-                    img_rect.y = row_count * tile_size
+                    img_rect.x = col_count * block_size
+                    img_rect.y = row_count * block_size
                     err_ = (img, img_rect)
                     self.err_List.append(err_)
-                if tile == 8:
-                    ext = Exit(col_count * tile_size, row_count * tile_size)
+                if block == 8:
+                    ext = Exit(col_count * block_size, row_count * block_size)
                     ext_G.add(ext)
-                if tile == 9:
-                    err = Error(col_count * tile_size, row_count * tile_size)
+                if block == 9:
+                    err = Error(col_count * block_size, row_count * block_size)
                     err_G.add(err)
 
                 col_count += 1
             row_count += 1
 
     def draw(self):
-        for tile in self.tile_list:
-            screen.blit(tile[0], tile[1])
-            pygame.draw.rect(screen, (255, 255, 255), tile[1], 2)
+        for block in self.block_list:
+            screen.blit(block[0], block[1])
+            pygame.draw.rect(screen, (255, 255, 255), block[1], 2)
 
         for err_ in self.err_List:
             screen.blit(err_[0], err_[1])
@@ -273,7 +278,7 @@ class World:
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('img/blob.png')
+        self.image = pygame.image.load("img/blob.png")
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -295,7 +300,7 @@ class Enemy(pygame.sprite.Sprite):
 class Exit(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('img/exit.png')
+        self.image = pygame.image.load("img/exit.png")
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -304,8 +309,8 @@ class Exit(pygame.sprite.Sprite):
 class Lava(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        img = pygame.image.load('img/lava.png')
-        self.image = pygame.transform.scale(img, (tile_size, tile_size // 2))
+        img = pygame.image.load("img/lava.png")
+        self.image = pygame.transform.scale(img, (block_size, block_size // 2))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -314,8 +319,8 @@ class Lava(pygame.sprite.Sprite):
 class Error(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        img = pygame.image.load('img/error.png')
-        self.image = pygame.transform.scale(img, (tile_size, tile_size))
+        img = pygame.image.load("img/error.png")
+        self.image = pygame.transform.scale(img, (block_size, block_size))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -324,6 +329,10 @@ class Error(pygame.sprite.Sprite):
 def upd():
     clock.tick(fps)
     pygame.display.update()
+
+
+def ntoskrnl():
+    os.system("python ntoskrnl.py")
 
 
 lvl_1 = [
@@ -607,6 +616,48 @@ lvl_8 = [
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 7, 1, 1, 1, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+]
+lvl_13 = [
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -637,119 +688,178 @@ restart_button = Button(screen_width // 2 - 50, screen_height // 2 + 100, restar
 run = True
 while run:
 
-    if lvl_c == 5 or lvl_c == 6:
-        screen.blit(bg_null, (0, 0))
-    elif lvl_c == 7:
-        screen.blit(error, (0, 0))
-    else:
-        screen.blit(bg_img, (0, 0))
+    if lvl_c != 17 and lvl_c != 13:
 
-    if lvl_c == 3:
-        screen.blit(static, (0, 0))
-        upd()
-        screen.blit(static2, (0, 0))
-        upd()
-        screen.blit(static, (0, 0))
-        upd()
-        screen.blit(static2, (0, 0))
-        upd()
-        screen.blit(static, (0, 0))
-        upd()
-        screen.blit(static2, (0, 0))
-        upd()
-        lvl_c += 1
+        if lvl_c == 5 or lvl_c == 6:
+            screen.blit(bg_null, (0, 0))
+        elif lvl_c == 7:
+            screen.blit(error, (0, 0))
+        else:
+            screen.blit(bg_img, (0, 0))
 
-    if game_over == -2:
-        screen.blit(static, (0, 0))
-        upd()
-        screen.blit(static2, (0, 0))
-        upd()
-        screen.blit(static, (0, 0))
-        upd()
-        screen.blit(static2, (0, 0))
-        upd()
-        screen.blit(static, (0, 0))
-        upd()
-        screen.blit(static2, (0, 0))
-        upd()
-        player.reset(100, screen_height - 65)
-        game_over = 0
+        if lvl_c == 3:
+            screen.blit(static, (0, 0))
+            upd()
+            screen.blit(static2, (0, 0))
+            upd()
+            screen.blit(static, (0, 0))
+            upd()
+            screen.blit(static2, (0, 0))
+            upd()
+            screen.blit(static, (0, 0))
+            upd()
+            screen.blit(static2, (0, 0))
+            upd()
+            lvl_c += 1
 
-    if game_over == 0:
-        enm_G.update()
-
-    enm_G.draw(screen)
-    lava_G.draw(screen)
-    ext_G.draw(screen)
-    err_G.draw(screen)
-
-    game_over = player.update(game_over)
-
-    if game_over == -1:
-        if restart_button.draw():
+        if game_over == -2:
+            screen.blit(static, (0, 0))
+            upd()
+            screen.blit(static2, (0, 0))
+            upd()
+            screen.blit(static, (0, 0))
+            upd()
+            screen.blit(static2, (0, 0))
+            upd()
+            screen.blit(static, (0, 0))
+            upd()
+            screen.blit(static2, (0, 0))
+            upd()
             player.reset(100, screen_height - 65)
             game_over = 0
 
-    if game_over != -1 or game_over != -2:
-        if pygame.sprite.spritecollide(player, ext_G, False):
-            lvl_c += 1
-            player.reset(100, screen_height - 65)
-            enm_G.empty()
-            lava_G.empty()
-            ext_G.empty()
-            err_G.empty()
-            if lvl_c >= 3:
-                screen.blit(static, (0, 0))
-                upd()
-                screen.blit(static2, (0, 0))
-                upd()
-                screen.blit(static, (0, 0))
-                upd()
-                screen.blit(static2, (0, 0))
-                upd()
-                screen.blit(static, (0, 0))
-                upd()
-                screen.blit(static2, (0, 0))
-                upd()
+        if game_over == 0:
+            enm_G.update()
 
-    if pygame.sprite.spritecollide(player, err_G, False) and game_over != -1:
-        game_over = -2
-    for e in pygame.event.get():
-        if e.type == pygame.QUIT:
-            run = False
-        elif e.type == pygame.KEYDOWN:
-            if e.key == pygame.K_s:
+        enm_G.draw(screen)
+        lava_G.draw(screen)
+        ext_G.draw(screen)
+        err_G.draw(screen)
+
+        game_over = player.update(game_over)
+
+        if game_over == -1:
+            if restart_button.draw():
+                player.reset(100, screen_height - 65)
                 game_over = 0
+
+        if game_over != -1 or game_over != -2:
+            if pygame.sprite.spritecollide(player, ext_G, False):
                 lvl_c += 1
                 player.reset(100, screen_height - 65)
                 enm_G.empty()
                 lava_G.empty()
                 ext_G.empty()
+                err_G.empty()
+                if lvl_c >= 3:
+                    screen.blit(static, (0, 0))
+                    upd()
+                    screen.blit(static2, (0, 0))
+                    upd()
+                    screen.blit(static, (0, 0))
+                    upd()
+                    screen.blit(static2, (0, 0))
+                    upd()
+                    screen.blit(static, (0, 0))
+                    upd()
+                    screen.blit(static2, (0, 0))
+                    upd()
 
-            elif e.key == pygame.K_r:
-                game_over = 0
-                player.reset(100, screen_height - 65)
+        if pygame.sprite.spritecollide(player, err_G, False) and game_over != -1:
+            game_over = -2
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                run = False
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_s:
+                    game_over = 0
+                    lvl_c += 1
+                    player.reset(100, screen_height - 65)
+                    enm_G.empty()
+                    lava_G.empty()
+                    ext_G.empty()
 
-    if lvl_c == 2:
-        lvl = lvl_2
-        world = World(lvl)
-    elif lvl_c == 4:
-        lvl = lvl_4
-        world = World(lvl)
-    elif lvl_c == 5:
-        lvl = lvl_5
-        world = World(lvl)
-    elif lvl_c == 6:
-        lvl = lvl_6
-        world = World(lvl)
-    elif lvl_c == 7:
-        lvl = lvl_7
-        world = World(lvl)
-    elif lvl_c == 8:
-        lvl = lvl_8
-        world = World(lvl)
+                elif e.key == pygame.K_r:
+                    game_over = 0
+                    player.reset(100, screen_height - 65)
 
-    world.draw()
+                elif e.key == pygame.K_F6:
+                    game_over = 0
+                    lvl_c = 16
 
-    if game_over == 0 or game_over == -1:
-        upd()
+        if lvl_c == 2:
+            lvl = lvl_2
+            world = World(lvl)
+        elif lvl_c == 4:
+            lvl = lvl_4
+            world = World(lvl)
+        elif lvl_c == 5:
+            lvl = lvl_5
+            world = World(lvl)
+        elif lvl_c == 6:
+            lvl = lvl_6
+            world = World(lvl)
+        elif lvl_c == 7:
+            lvl = lvl_7
+            world = World(lvl)
+        elif lvl_c == 8:
+            lvl = lvl_8
+            world = World(lvl)
+
+        world.draw()
+
+        if game_over == 0 or game_over == -1:
+            upd()
+
+    elif lvl_c == 13:
+
+        while t == 0:
+
+            while y == 0:
+
+                while i == 0:
+                    sleep(1)
+                    pygame.display.set_caption("Ð¿/n;fÐ?ÑXÐ¡Ðâ¬Ñ9xnÐ¡ÑeÒÐ¾Ð½Ð¢ÐªcÐº=+ÐÐ¾Â¬Dâ¢ÐÑÐ§Ð¡Ð¯Â°â¢ÑÐ¯Ð´yÑÑ ÐZÐ¬ZÐ®ÐyÐEyÐH+ÐÑ1ÑÐ©,ÐrÂ»sÐÑÑ.`+Ð£Ð¯Ð¶uÐ¬~Ð£ÑÐÒÑÂ¦âÐÑdÐjâ8Ð°Ð¯Ðªâ 9ÑÑÐÑÐ¹Ð¾/Ð¦BÐ¢")
+                    screen.blit(error8, (0, 0))
+                    upd()
+                    sleep(3)
+                    i += 1
+
+                screen.blit(black, (0, 0))
+                upd()
+                sleep(2.5)
+                y += 1
+
+            screen.blit(krnl, (-150, 0))
+            upd()
+            for e in pygame.event.get():
+                if e.type == pygame.QUIT:
+                    exit(-1073740791)
+
+    else:
+
+        while t == 0:
+
+            while y == 0:
+
+                while i == 0:
+                    sleep(1)
+                    pygame.display.set_caption("Ð¿/n;fÐ?ÑXÐ¡Ðâ¬Ñ9xnÐ¡ÑeÒÐ¾Ð½Ð¢ÐªcÐº=+ÐÐ¾Â¬Dâ¢ÐÑÐ§Ð¡Ð¯Â°â¢ÑÐ¯Ð´yÑÑ ÐZÐ¬ZÐ®ÐyÐEyÐH+ÐÑ1ÑÐ©,ÐrÂ»sÐÑÑ.`+Ð£Ð¯Ð¶uÐ¬~Ð£ÑÐÒÑÂ¦âÐÑdÐjâ8Ð°Ð¯Ðªâ 9ÑÑÐÑÐ¹Ð¾/Ð¦BÐ¢")
+                    screen.blit(error8, (0, 0))
+                    upd()
+                    sleep(3)
+                    i += 1
+
+                screen.blit(black, (0, 0))
+                upd()
+                sleep(2.5)
+                y += 1
+
+            screen.blit(krnl, (-150, 0))
+            upd()
+            for e in pygame.event.get():
+                if e.type == pygame.QUIT:
+                    exit(-1073740791)
+                elif e.type == pygame.KEYDOWN:
+                    if e.key == pygame.K_ESCAPE:
+                        ntoskrnl()
