@@ -28,7 +28,7 @@ bg_img = pygame.image.load("img/Sky.jpg")
 bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
 bg_null = pygame.image.load("img/ERROR_BG_NULL.png")
 restart_img = pygame.image.load('img/restart_btn.png')
-static = pygame.image.load("img/static.png")
+static1 = pygame.image.load("img/static.png")
 static2 = pygame.image.load("img/static2.png")
 static3 = pygame.image.load("img/static3.png")
 static4 = pygame.image.load("img/static4.png")
@@ -45,9 +45,12 @@ error6 = pygame.image.load("img/error6.png")
 error7 = pygame.image.load("img/error7.png")
 error8 = pygame.image.load("img/descarga.png")
 
+BSERR = pygame.image.load("img/BSERR.png")
+BSASK = pygame.image.load("img/BSASK.png")
+
 krnl = pygame.image.load("img/Kernel.png")
 
-static = pygame.transform.scale(static, (screen_width, screen_height))
+static1 = pygame.transform.scale(static1, (screen_width, screen_height))
 static2 = pygame.transform.scale(static2, (screen_width, screen_height))
 static3 = pygame.transform.scale(static3, (screen_width, screen_height))
 static4 = pygame.transform.scale(static4, (screen_width, screen_height))
@@ -333,6 +336,21 @@ def upd():
 
 def ntoskrnl():
     os.system("python ntoskrnl.py")
+
+
+def static():
+    screen.blit(static1, (0, 0))
+    upd()
+    screen.blit(static2, (0, 0))
+    upd()
+    screen.blit(static1, (0, 0))
+    upd()
+    screen.blit(static2, (0, 0))
+    upd()
+    screen.blit(static1, (0, 0))
+    upd()
+    screen.blit(static2, (0, 0))
+    upd()
 
 
 lvl_1 = [
@@ -698,33 +716,11 @@ while run:
             screen.blit(bg_img, (0, 0))
 
         if lvl_c == 3:
-            screen.blit(static, (0, 0))
-            upd()
-            screen.blit(static2, (0, 0))
-            upd()
-            screen.blit(static, (0, 0))
-            upd()
-            screen.blit(static2, (0, 0))
-            upd()
-            screen.blit(static, (0, 0))
-            upd()
-            screen.blit(static2, (0, 0))
-            upd()
+            static()
             lvl_c += 1
 
         if game_over == -2:
-            screen.blit(static, (0, 0))
-            upd()
-            screen.blit(static2, (0, 0))
-            upd()
-            screen.blit(static, (0, 0))
-            upd()
-            screen.blit(static2, (0, 0))
-            upd()
-            screen.blit(static, (0, 0))
-            upd()
-            screen.blit(static2, (0, 0))
-            upd()
+            static()
             player.reset(100, screen_height - 65)
             game_over = 0
 
@@ -752,18 +748,7 @@ while run:
                 ext_G.empty()
                 err_G.empty()
                 if lvl_c >= 3:
-                    screen.blit(static, (0, 0))
-                    upd()
-                    screen.blit(static2, (0, 0))
-                    upd()
-                    screen.blit(static, (0, 0))
-                    upd()
-                    screen.blit(static2, (0, 0))
-                    upd()
-                    screen.blit(static, (0, 0))
-                    upd()
-                    screen.blit(static2, (0, 0))
-                    upd()
+                    static()
 
         if pygame.sprite.spritecollide(player, err_G, False) and game_over != -1:
             game_over = -2
@@ -783,9 +768,13 @@ while run:
                     game_over = 0
                     player.reset(100, screen_height - 65)
 
-                elif e.key == pygame.K_F6:
+                elif e.key == pygame.K_F7:
                     game_over = 0
-                    lvl_c = 16
+                    lvl_c = 17
+
+                elif e.key == pygame.K_F3:
+                    game_over = 0
+                    lvl_c = 13
 
         if lvl_c == 2:
             lvl = lvl_2
@@ -820,7 +809,7 @@ while run:
                 while i == 0:
                     sleep(1)
                     pygame.display.set_caption("Ð¿/n;fÐ?ÑXÐ¡Ðâ¬Ñ9xnÐ¡ÑeÒÐ¾Ð½Ð¢ÐªcÐº=+ÐÐ¾Â¬Dâ¢ÐÑÐ§Ð¡Ð¯Â°â¢ÑÐ¯Ð´yÑÑ ÐZÐ¬ZÐ®ÐyÐEyÐH+ÐÑ1ÑÐ©,ÐrÂ»sÐÑÑ.`+Ð£Ð¯Ð¶uÐ¬~Ð£ÑÐÒÑÂ¦âÐÑdÐjâ8Ð°Ð¯Ðªâ 9ÑÑÐÑÐ¹Ð¾/Ð¦BÐ¢")
-                    screen.blit(error8, (0, 0))
+                    screen.blit(error6, (0, 0))
                     upd()
                     sleep(3)
                     i += 1
@@ -830,19 +819,31 @@ while run:
                 sleep(2.5)
                 y += 1
 
-            screen.blit(krnl, (-150, 0))
+            screen.blit(BSERR, (0, 0))
             upd()
-            for e in pygame.event.get():
-                if e.type == pygame.QUIT:
+            sleep(2.5)
+            screen.blit(BSASK, (0, 0))
+            upd()
+            t += 1
+
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                exit(-1073740791)
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_n:
+                    static()
+                    lvl_c += 1
+                elif e.key == pygame.K_y:
+                    os.system("python ntoskrnl.py")
                     exit(-1073740791)
 
     else:
 
-        while t == 0:
+        while t == 1:
 
-            while y == 0:
+            while y == 1:
 
-                while i == 0:
+                while i == 1:
                     sleep(1)
                     pygame.display.set_caption("Ð¿/n;fÐ?ÑXÐ¡Ðâ¬Ñ9xnÐ¡ÑeÒÐ¾Ð½Ð¢ÐªcÐº=+ÐÐ¾Â¬Dâ¢ÐÑÐ§Ð¡Ð¯Â°â¢ÑÐ¯Ð´yÑÑ ÐZÐ¬ZÐ®ÐyÐEyÐH+ÐÑ1ÑÐ©,ÐrÂ»sÐÑÑ.`+Ð£Ð¯Ð¶uÐ¬~Ð£ÑÐÒÑÂ¦âÐÑdÐjâ8Ð°Ð¯Ðªâ 9ÑÑÐÑÐ¹Ð¾/Ð¦BÐ¢")
                     screen.blit(error8, (0, 0))
@@ -857,9 +858,7 @@ while run:
 
             screen.blit(krnl, (-150, 0))
             upd()
-            for e in pygame.event.get():
-                if e.type == pygame.QUIT:
-                    exit(-1073740791)
-                elif e.type == pygame.KEYDOWN:
-                    if e.key == pygame.K_ESCAPE:
-                        ntoskrnl()
+            sleep(3)
+            ntoskrnl()
+            exit(-1073740791)
+            
