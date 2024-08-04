@@ -34,6 +34,9 @@ error4 = pygame.image.load("img/error4.png")
 error5 = pygame.image.load("img/error5.png")
 error6 = pygame.image.load("img/error6.png")
 error7 = pygame.image.load("img/error7.png")
+error8 = pygame.image.load("img/descarga.png")
+
+krnl = pygame.image.load("img/Kernel.png")
 
 static = pygame.transform.scale(static, (screen_width, screen_height))
 static2 = pygame.transform.scale(static2, (screen_width, screen_height))
@@ -50,6 +53,9 @@ error4 = pygame.transform.scale(error4, (screen_width, screen_height))
 error5 = pygame.transform.scale(error5, (screen_width, screen_height))
 error6 = pygame.transform.scale(error6, (screen_width, screen_height))
 error7 = pygame.transform.scale(error7, (screen_width, screen_height))
+error8 = pygame.transform.scale(error8, (screen_width, screen_height))
+
+krnl = pygame.transform.scale(krnl, (screen_width, screen_height))
 
 
 class Button:
@@ -611,7 +617,7 @@ lvl_8 = [
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
 ]
 
