@@ -1140,9 +1140,10 @@ while run:
             sleep(3)
             screen.blit(krnl_dstry, (0, 0))
             upd()
-            sleep(5)
+            sleep(6)
             t += 1
             lvl_c = None
 
     else:
+        ntoskrnl()
         exit(krnl)
