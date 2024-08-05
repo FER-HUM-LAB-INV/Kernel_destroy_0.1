@@ -33,12 +33,14 @@ class Ui_ntoskrnl(object):
         _translate = QtCore.QCoreApplication.translate
         ntoskrnl.setWindowTitle(_translate("ntoskrnl", "ntoskrnl.exe"))
         self.label.setText(_translate("ntoskrnl", "KERNEL CORRUPTION\n"
-"THANKS FOR PLAYING\n"
-"THIS IS STILL THE FIRST VERSION!!!\nMORE COMING SOON!!!"))
+                                                  "THANKS FOR PLAYING\n"
+                                                  "THIS IS STILL THE FIRST VERSION!!!\n"
+                                                  "MORE COMING SOON!!!"))
 
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     ntoskrnl = QtWidgets.QDialog()
     ui = Ui_ntoskrnl()
